@@ -4,6 +4,7 @@ import random as rd
 import matplotlib.pyplot as plt
 import time as t
 import os
+import tracemalloc
 
 def clear() -> None:
     os.system('cls' if os.name == 'nt' else 'clear')
@@ -48,6 +49,17 @@ def bfs(mat_adj: list, inicio: int, fim: int) -> list:
     print("❌ Caminho não encontrado.")
     return []
 
+def coletando_uso_memoria_bfs( mat_adj: list, inicio: int, fim: int) -> None:
+    tracemalloc.start()
+    
+    bfs(mat_adj, inicio, fim)
+
+    current, peak = tracemalloc.get_traced_memory()
+
+    tracemalloc.stop()
+
+    return peak / 10**6
+
 def main():
     while(True):
         clear()
@@ -58,9 +70,9 @@ def main():
         print("4. Animação do BFS passo a passo")
         print("0. Sair")
         opcao = -1
-        while(opcao < 0 or opcao > 4):
+        while(opcao < 0 or opcao > 5):
             opcao = int(input("Digite a opção desejada: "))
-            if(opcao < 0 or opcao > 4):
+            if(opcao < 0 or opcao > 5):
                 print("⚠️ Opção inválida, tente novamente...")
         
         if opcao == 1:
@@ -88,6 +100,7 @@ def main():
                 res = bfs(mat_adj, 0, len(mat_adj) - 1)
                 fim = t.time()
                 print(f"🕒 Tempo de execução: {fim - ini:.4f} segundos")
+                coletando_uso_memoria_bfs(mat_adj, 0, len(mat_adj) - 1)
             except NameError:
                 print("⚠️ Grafo ainda não foi criado. Por favor, construa o grafo primeiro.")
                 
@@ -146,12 +159,24 @@ def main():
                 plt.show()
             except NameError:
                 print("⚠️ Grafo ainda não foi criado. Por favor, construa o grafo primeiro.")
-                
+        elif opcao == 5:
+            resultados_memoria = []
+            for i in range(15):
+                print(f"Coletando uso de memória {i+1}/15...")
+                resultados_memoria.append(coletando_uso_memoria_bfs(mat_adj, 0, len(mat_adj) - 1))
+            print("📊 Resultados de uso de memória:")
+            for i, uso in enumerate(resultados_memoria):
+                print(f"Teste {i+1}: {uso:.2f} MB")
+            media = sum(resultados_memoria) / len(resultados_memoria)
+            print(f"📈 Uso médio de memória: {media:.2f} MB")
+
         elif opcao == 0:
             print("✨ Que a força esteja com você!")
             break
         
         input("Pressione qualquer teclar para continuar...")
+
+
         
 if __name__ == "__main__":
     main()
