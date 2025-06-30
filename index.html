@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PAA e StarWars</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@600&display=swap');
+
+    body {
+      margin: 0;
+      background: radial-gradient(#000000, #0a0a0a);
+      height: 100vh;
+      font-family: 'Orbitron', sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: row;
+      color: #3399ff; /* azul principal */
+      overflow: hidden;
+      position: relative;
+    }
+
+    .main-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 40px;
+      z-index: 2;
+    }
+
+    .question-box {
+      background: transparent; /* totalmente transparente */
+      border: 2px solid #3399ff; /* borda azul */
+      padding: 20px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 0 20px #3399ff; /* sombra azul */
+      min-width: 300px;
+      color: #aaddff; /* texto azul claro */
+      position: relative;
+      z-index: 10;
+      transition: all 0.3s ease;
+    }
+
+    /* Estado de erro da caixa */
+    .question-box.error {
+      border-color: #ff3333;
+      box-shadow: 0 0 20px #ff3333;
+      color: #ff9999;
+    }
+
+    /* Classe para centralizar vertical e horizontalmente o texto final */
+    .question-box.finished {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 120px; /* altura fixa para centralizar bem */
+      font-size: 1.2rem;
+    }
+
+    .question-box input {
+      margin-top: 10px;
+      padding: 10px;
+      border: none;
+      border-radius: 5px;
+      width: 250px;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 14px;
+      color: #aaddff;
+      background: rgba(0,0,30,0.4);
+      border: 1px solid #3399ff;
+      transition: border-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* Input com erro */
+    .question-box.error input {
+      border-color: #ff3333;
+      color: #ff9999;
+      background: rgba(30,0,0,0.4);
+    }
+
+    .question-box input::placeholder {
+      color: #6688bb;
+    }
+
+    .question-box button {
+      margin-top: 10px;
+      padding: 10px 20px;
+      background: #3399ff;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      color: black;
+      font-family: 'Orbitron', sans-serif;
+      cursor: pointer;
+      box-shadow: 0 0 10px #3399ff;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    /* Botão em estado de erro */
+    .question-box.error button {
+      background: #ff3333;
+      box-shadow: 0 0 10px #ff3333;
+      color: white;
+    }
+
+    .question-box button:hover {
+      background: #287acc;
+    }
+
+    /* Botão em erro hover */
+    .question-box.error button:hover {
+      background: #cc0000;
+    }
+
+    .sabre-container {
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+      transition: all 0.3s ease;
+      z-index: 10;
+      /* removida borda e padding para não formar caixa */
+      min-height: 140px;
+    }
+
+    /* Sabre em erro - sem borda ou caixa, só o brilho vermelho na lâmina */
+    .sabre-container.error {
+      border-color: transparent;
+      box-shadow: none;
+    }
+
+    .sabre-container.error .blade {
+      background: #ff3333;
+      box-shadow:
+        0 0 15px #ff3333,
+        0 0 30px #ff3333,
+        0 0 60px #ff3333;
+    }
+
+    .blade {
+      width: 15px;
+      height: 0;
+      background: #3399ff;
+      box-shadow:
+        0 0 15px #3399ff,
+        0 0 30px #3399ff,
+        0 0 60px #3399ff;
+      transition: height 0.4s ease-in-out, background-color 0.3s ease, box-shadow 0.3s ease;
+      transform-origin: bottom;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .blade.on {
+      height: 300px;
+      margin-bottom: -10px;
+      border-top-left-radius: 35px;
+      border-top-right-radius: 35px;
+    }
+
+    .hilt {
+      width: 30px;
+      height: 100px;
+      background: linear-gradient(#333, #111);
+      border: 3px solid #555;
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 4px 0;
+      box-shadow: inset 0 0 10px #000, 0 0 5px #222;
+      margin-top: 8px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sabre-container.error .hilt {
+      border-color: #aa0000;
+      box-shadow: inset 0 0 15px #660000, 0 0 10px #cc0000;
+    }
+
+    .hilt .ring {
+      width: 20px;
+      height: 6px;
+      background: #888;
+      margin: 3px 0;
+      border-radius: 3px;
+    }
+
+    .hilt .button {
+      width: 12px;
+      height: 12px;
+      background: #3399ff;
+      border-radius: 50%;
+      margin: 6px 0;
+      box-shadow:
+        0 0 5px #3399ff;
+      transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .sabre-container.error .hilt .button {
+      background: #ff3333;
+      box-shadow:
+        0 0 7px #ff3333;
+    }
+
+    .hilt .grip {
+      flex-grow: 1;
+      width: 80%;
+      background: repeating-linear-gradient(#222, #222 5px, #111 5px, #111 10px);
+      border-radius: 4px;
+      margin-top: 4px;
+    }
+
+    /* Estrelas no fundo */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+      background: transparent;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation-name: star-move, star-flicker;
+      animation-timing-function: linear, ease-in-out;
+      animation-iteration-count: infinite, infinite;
+      animation-direction: normal, alternate;
+    }
+
+    @keyframes star-move {
+      0% {
+        transform: translateX(100vw);
+      }
+      100% {
+        transform: translateX(-10vw);
+      }
+    }
+
+    @keyframes star-flicker {
+      0% {
+        opacity: 0.3;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.3;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="stars" id="stars"></div>
+
+  <div class="main-container">
+    <div class="question-box" id="question-box">
+      <div id="question-text"> Qual a complexidade espacial do BFS? </div>
+      <input type="text" id="answer" placeholder="Digite sua resposta...">
+      <br>
+      <button onclick="checkAnswer()">Responder</button>
+    </div>
+
+    <div class="sabre-container" id="sabre" onclick="toggleSabre()">
+      <div class="blade" id="blade"></div>
+      <div class="hilt">
+        <div class="ring"></div>
+        <div class="button"></div>
+        <div class="grip"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let sabreOn = false;
+    let questionIndex = 0;
+    const questions = [
+      {
+        question: "Qual a complexidade espacial do BFS?",
+        answer: "o(v)"
+      },
+      {
+        question: "Qual a complexidade temporal do DFS?",
+        answer: "o(v + e)"
+      }
+    ];
+
+    const questionBox = document.getElementById('question-box');
+    const sabreContainer = document.getElementById('sabre');
+
+    function checkAnswer() {
+      const resposta = document.getElementById('answer').value.trim().toLowerCase();
+      const blade = document.getElementById('blade');
+
+      // Limpa estados de erro
+      questionBox.classList.remove('error');
+      sabreContainer.classList.remove('error');
+
+      if (!sabreOn && resposta === questions[questionIndex].answer) {
+        blade.classList.add('on');
+        sabreOn = true;
+      } else if (!sabreOn) {
+        // Resposta errada: aplica estilo de erro
+        questionBox.classList.add('error');
+        sabreContainer.classList.add('error');
+        blade.classList.remove('on');
+      }
+    }
+
+    function toggleSabre() {
+      const blade = document.getElementById('blade');
+      const questionText = document.getElementById('question-text');
+      const answerInput = document.getElementById('answer');
+      const btn = document.querySelector('.question-box button');
+
+      // Limpa estados de erro ao clicar no sabre para desligar
+      questionBox.classList.remove('error');
+      sabreContainer.classList.remove('error');
+
+      if (sabreOn) {
+        blade.classList.remove('on');
+        sabreOn = false;
+
+        questionIndex++;
+        if (questionIndex < questions.length) {
+          questionText.textContent = questions[questionIndex].question;
+          answerInput.value = "";
+          answerInput.style.display = "inline-block";
+          btn.style.display = "inline-block";
+
+          questionBox.classList.remove('finished');
+        } else {
+          questionText.textContent = "Você completou todas as perguntas! Que a força esteja com você.";
+          answerInput.style.display = "none";
+          btn.style.display = "none";
+
+          questionBox.classList.add('finished');
+        }
+      }
+    }
+
+    function createStars() {
+      const starsContainer = document.getElementById('stars');
+      const numStars = 80;
+
+      for(let i = 0; i < numStars; i++) {
+        const star = document.createElement('div');
+        star.classList.add('star');
+
+        const size = Math.random() * 2 + 1;
+        star.style.width = `${size}px`;
+        star.style.height = `${size}px`;
+
+        star.style.top = `${Math.random() * 100}vh`;
+
+        const moveDuration = (Math.random() * 5 + 5).toFixed(2);
+        const flickerDuration = (Math.random() * 2 + 1).toFixed(2);
+        const delay = (Math.random() * 10).toFixed(2);
+
+        star.style.animationDuration = `${moveDuration}s, ${flickerDuration}s`;
+        star.style.animationDelay = `${delay}s, ${delay}s`;
+
+        starsContainer.appendChild(star);
+      }
+    }
+
+    createStars();
+  </script>
+
+</body>
+</html>
